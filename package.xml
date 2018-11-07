@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>random_walk_turtle</name>
+  <name>odometry</name>
   <version>0.0.0</version>
-  <description>The random_walk package adapted for turtlebot</description>
+  <description>An odometry test program</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(random_walk_turtle)
+project(odometry)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -200,6 +200,6 @@ include_directories(
 
 
 include_directories(include ${catkin_INCLUDE_DIRS})
-add_executable(random_walk_turtle src/random_walk_turtle.cpp)
-target_link_libraries(random_walk_turtle ${catkin_LIBRARIES})
-add_dependencies(random_walk_turtle beginner_tutorials_generate_messages_cpp)
+add_executable(odometry src/odometry.cpp)
+target_link_libraries(odometry ${catkin_LIBRARIES})
+add_dependencies(odometry beginner_tutorials_generate_messages_cpp)
