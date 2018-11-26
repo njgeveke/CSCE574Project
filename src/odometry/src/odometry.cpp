@@ -2,6 +2,7 @@
 #include "geometry_msgs/Twist.h"
 #include <cstdlib> // Needed for rand()
 #include <iostream>
+#include <termios.h>//needed for getch function
 
 
 
@@ -15,8 +16,8 @@ Odometry(ros::NodeHandle& nh) {
 // (the second argument indicates that if multiple command messages are in
 //  the queue to be sent, only the last command will be sent)
 commandPub = nh.advertise<geometry_msgs::Twist>("cmd_vel_mux/input/navi", 1);
-
 }
+
 // Send a velocity command 
 void move(double linearVelMPS, double angularVelRadPS) {
 geometry_msgs::Twist msg; // The default constructor will set all commands to 0
@@ -26,14 +27,55 @@ commandPub.publish(msg);
 };
 
 
+/*The following function was taken from 
+ *https://github.com/sdipendra/ros-projects/blob/master/src/keyboard_non_blocking_input/src/keyboard_non_blocking_input_node.cpp*/
+char getch()
+{
+	fd_set set;
+	struct timeval timeout;
+	int rv;
+	char buff = 0;
+	int len = 1;
+	int filedesc = 0;
+	FD_ZERO(&set);
+	FD_SET(filedesc, &set);
+	
+	timeout.tv_sec = 0;
+	timeout.tv_usec = 1000;
+
+	rv = select(filedesc + 1, &set, NULL, NULL, &timeout);
+
+	struct termios old = {0};
+	if (tcgetattr(filedesc, &old) < 0)
+		ROS_ERROR("tcsetattr()");
+	old.c_lflag &= ~ICANON;
+	old.c_lflag &= ~ECHO;
+	old.c_cc[VMIN] = 1;
+	old.c_cc[VTIME] = 0;
+	if (tcsetattr(filedesc, TCSANOW, &old) < 0)
+		ROS_ERROR("tcsetattr ICANON");
+
+	if(rv == -1)
+		ROS_ERROR("select");
+	else if(rv == 0)
+		ROS_INFO("no_key_pressed");
+	else
+		read(filedesc, &buff, len );
+
+	old.c_lflag |= ICANON;
+	old.c_lflag |= ECHO;
+	if (tcsetattr(filedesc, TCSADRAIN, &old) < 0)
+		ROS_ERROR ("tcsetattr ~ICANON");
+	return (buff);
+}
 
 
 void spin() {
-ros::Rate rate(30); // Specify the FSM loop rate in Hz
+ros::Rate rate(1); // Specify the FSM loop rate in Hz
 while(ros::ok()) { // Keep spinning loop until user presses Ctrl+C
    std::cout << "\nWhat would you like me to do \n";
     std::cout << "a)Square\nb)Line\nc)Rotate \n";
-    std::cin >> patternChoice;
+    patternChoice = getch();
     
     
     
